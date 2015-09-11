@@ -1,6 +1,6 @@
 class CheckOut
     def initialize(rules)
-        @rules = rules
+        @price_calculator = PriceCalculator.new rules
         @items = {}
     end
 
@@ -12,13 +12,23 @@ class CheckOut
         end
     end
 
-    def total
-        return @items.map{|item, count| item_total(item, count)}.inject(0, :+)
+    def total()
+        @price_calculator.total(@items)
+    end
+end
+
+class PriceCalculator
+    def initialize(rules)
+        @rules = rules
+    end
+
+    def total(items)
+        return items.map{|item, count| item_total(item, count)}.inject(0, :+)
     end
     
     def item_total(item, count)
         total = 0
-        items_left = @items[item]
+        items_left = count
         while items_left > 0
             items_used, cost = take_as_much_items_as_possible(@rules[item], items_left)
             total += cost
