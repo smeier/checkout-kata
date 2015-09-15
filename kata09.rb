@@ -1,3 +1,4 @@
+# Checkout
 class CheckOut
     def self.from_config_table(table)
         self.new(ConfigParser.new.parse(table))
@@ -17,6 +18,7 @@ class CheckOut
     end
 end
 
+# The Scanner is responsible for collecting the items being scanned
 class Scanner
     attr_reader :items
 
@@ -34,6 +36,8 @@ class Scanner
 
 end
 
+# Calculates the price of a list of items according to the
+# rules given to the constructor
 class PriceCalculator
     def initialize(rules)
         @rules = rules

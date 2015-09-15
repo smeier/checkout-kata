@@ -2,6 +2,7 @@ require 'test/unit'
 require_relative 'kata09'
 
 RULES={"A" => {1 => 50, 3 => 130}, "B" => {1 =>30, 2 => 45}, "C" => {1 => 20}, "D" => {1 => 15}, "E" => {1 => 20, 3 => 50, 6 => 200}}
+
 RULES_TABLE="""
  Item   Unit      Special
          Price     Price
@@ -52,16 +53,11 @@ class TestPrice < Test::Unit::TestCase
     co.scan("A");  assert_equal(160, co.total)
     co.scan("B");  assert_equal(175, co.total)
   end
+end
 
-  def test_config_parser_one_line
-      rules = ConfigParser.new.parse("A   10   3 for 25     6 for 45")
-      expected = {"A" => {1=> 10, 3 => 25, 6 => 45}}
-      assert_equal(expected, rules)
-  end
-
+class TestConfigParser < Test::Unit::TestCase
   def test_regex_config_parser
       rules = ConfigParser.new.parse(RULES_TABLE)
       assert_equal(RULES, rules)
   end
-
 end
