@@ -14,6 +14,11 @@ RULES_TABLE="""
     E     20       3 for 50     6 for 200
 """
 
+RULES_FOR_ITEMS_WITH_MORE_THAN_ONE_CHARS = """
+ABCDEFG   50       3 for 130
+XXXXXXX   20       3 for 50     6 for 200
+"""
+
 class TestPrice < Test::Unit::TestCase
 
   def price(goods)
@@ -52,6 +57,17 @@ class TestPrice < Test::Unit::TestCase
     co.scan("A");  assert_equal(130, co.total)
     co.scan("A");  assert_equal(160, co.total)
     co.scan("B");  assert_equal(175, co.total)
+  end
+
+  def test_incremental_with_multichar_items
+    co = CheckOut.from_config_table(RULES_FOR_ITEMS_WITH_MORE_THAN_ONE_CHARS)
+    co.scan("ABCDEFG");
+    co.scan("ABCDEFG");
+    co.scan("ABCDEFG");
+    co.scan("XXXXXXX");
+    co.scan("XXXXXXX");
+    co.scan("XXXXXXX");
+    assert_equal(130 + 50, co.total)
   end
 end
 
