@@ -1,16 +1,18 @@
-# Checkout
+# Checkout provides methods to scan multiple items and in the end calculate
+# the total afterwards (or in between for that matter)
 class CheckOut
     def self.from_config_table(table)
         self.new(ConfigParser.new.parse(table))
     end
 
     def initialize(rules)
+        RuleChecker.new.check_rules(rules)
         @price_calculator = PriceCalculator.new rules
-        @scanner = Scanner.new
+        @scanner = Scanner.new(rules.keys)
     end
 
     def total()
-        @price_calculator.total(@scanner.items)
+        @price_calculator.total(@scanner.scanned_items)
     end
 
     def scan(item)
@@ -18,22 +20,38 @@ class CheckOut
     end
 end
 
+
 # The Scanner is responsible for collecting the items being scanned
 class Scanner
-    attr_reader :items
+    attr_reader :scanned_items
 
-    def initialize()
-        @items = {}
+    def initialize(item_list)
+        @item_list = item_list
+        @scanned_items = {}
     end
 
+    # adds the item to to the list of scanned items if it is include in
+    # item_list. Otherwise an UnknownItemError is thrown,
     def scan(item)
-        if @items[item]
-            @items[item] += 1
+        unless @item_list.include?(item)
+            raise UnknownItemError.new
+        end
+        if @scanned_items[item]
+            @scanned_items[item] += 1
         else
-            @items[item] = 1
+            @scanned_items[item] = 1
         end
     end
 
+end
+
+class UnknownItemError < StandardError
+end
+
+class BadRuleError < StandardError
+    def initialize(root_cause)
+        @root_cause = root_cause
+    end
 end
 
 # Calculates the price of a list of items according to the
@@ -65,6 +83,7 @@ class PriceCalculator
     end
 end
 
+
 class ConfigParser
     LINE_REGEX = /(\S+)\s+(\d+)\s+(.*)/
     DISCOUNT_REGEX = /\S+\s+for\s+\d+\s*/
@@ -91,5 +110,29 @@ class ConfigParser
     def parse_discount(discount)
         count, price = discount.match(/(\S+)\s+for\s+(\S+)/).captures
         [count.to_i, price.to_i]
+    end
+end
+
+
+# Checks that rules match the format expected
+# raises an exception otherwise
+class RuleChecker
+    def check_rules(rules)
+        rules.keys.each do |item|
+            check_rules_for_item(rules[item])
+        end
+    rescue StandardError => e
+        raise BadRuleError.new(e)
+    end
+
+    def check_rules_for_item(rules)
+        rules.keys.each do |count|
+            check_is_int(count)
+            check_is_int(rules[count])
+        end
+    end
+
+    def check_is_int(o)
+        x = 0 + o
     end
 end

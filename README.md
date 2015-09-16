@@ -1,6 +1,7 @@
 ## About the project
 This is an implementation of the Kata [Back to the Checkout](http://codekata.com/kata/kata09-back-to-the-checkout/).
-The Checkout class calculates the total price of a number of items. In a normal supermarket, things are identified using Stock Keeping Units, or SKUs. In our store, we’ll use individual letters of the alphabet (A, B, C, and so on). Our goods are priced individually. In addition, some items are multipriced: buy n of them, and they’ll cost you y cents. For example, item ‘A’ might cost 50 cents individually, but this week we have a special offer: buy three ‘A’s and they’ll cost you $1.30. 
+The Checkout class calculates the total price of a number of items. In a normal supermarket, things are identified using Stock Keeping Units, or SKUs. In the following examples we’ll use individual letters of the alphabet (A, B, C, and so on) to keep them short. 
+Our goods are priced individually. In addition, some items are multipriced: buy n of them, and they’ll cost you y cents. For example, item ‘A’ might cost 50 cents individually, but this week we have a special offer: buy three ‘A’s and they’ll cost you $1.30. 
 For example this week's prices might be:
 
     Item   Unit      Special
@@ -36,4 +37,8 @@ The argument to the CheckOut constructor ist a hash of hashes but there's a more
         D     15
         E     20       3 for 50     6 for 200
     """
+
+## Error handling
+- Upon construction CheckOut makes sure that the rules provided match the expected format. Otherwise an BadRuleError is thrown.
+- Only items that are present in the rules specified can be scanned successfully. If the item to be scanned is unknown, an UnknownItemEerror is thrown.
 

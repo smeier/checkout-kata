@@ -14,10 +14,11 @@ RULES_TABLE="""
     E     20       3 for 50     6 for 200
 """
 
-RULES_FOR_ITEMS_WITH_MORE_THAN_ONE_CHARS = """
+RULES_FOR_ITEMS_WITH_MORE_THAN_ONE_CHAR = """
 ABCDEFG   50       3 for 130
 XXXXXXX   20       3 for 50     6 for 200
 """
+
 
 class TestPrice < Test::Unit::TestCase
 
@@ -60,7 +61,7 @@ class TestPrice < Test::Unit::TestCase
   end
 
   def test_incremental_with_multichar_items
-    co = CheckOut.from_config_table(RULES_FOR_ITEMS_WITH_MORE_THAN_ONE_CHARS)
+    co = CheckOut.from_config_table(RULES_FOR_ITEMS_WITH_MORE_THAN_ONE_CHAR)
     co.scan("ABCDEFG");
     co.scan("ABCDEFG");
     co.scan("ABCDEFG");
@@ -69,6 +70,32 @@ class TestPrice < Test::Unit::TestCase
     co.scan("XXXXXXX");
     assert_equal(130 + 50, co.total)
   end
+end
+
+class TestErrorHandling < Test::Unit::TestCase
+    def fail_to_initialize(rules)
+        co = CheckOut.new(rules)
+        false
+    rescue BadRuleError => e
+        true
+    end
+
+    def test_checkout_cannot_be_initialized_with_broken_configuration
+        assert_equal(true, fail_to_initialize({"A" => 1}))
+        assert_equal(true, fail_to_initialize({"A" => {"B" => 1}}))
+        assert_equal(true, fail_to_initialize({"A" => {"1" => 1}}))
+        assert_equal(true, fail_to_initialize({"A" => {1 => "1"}}))
+    end
+
+    def test_unknown_items_cant_be_scanned
+        co = CheckOut.new(RULES)
+        begin
+            co.scan("X")
+            assert(false)
+        rescue UnknownItemError => e
+            assert(true)
+        end
+    end
 end
 
 class TestConfigParser < Test::Unit::TestCase
