@@ -49,9 +49,6 @@ class UnknownItemError < StandardError
 end
 
 class BadRuleError < StandardError
-    def initialize(root_cause)
-        @root_cause = root_cause
-    end
 end
 
 # Calculates the price of a list of items according to the
